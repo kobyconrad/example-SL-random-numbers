@@ -58,6 +58,19 @@ export default function Home() {
     setText({ value: event.target.value });
   }
 
+  let currentArr = [];
+  if (list) {
+    currentArr = list.toArray();
+  }
+
+  let messageDivs = currentArr.map((item) => {
+    let totalIndex = currentArr.length;
+    let currentIndex = currentArr.indexOf(item);
+    if (currentIndex >= totalIndex - 6) {
+      return <ChatBubble text={item} index={currentIndex} />;
+    }
+  });
+
   return (
     <div className="appContainer">
       <div className="titleContainer">To-Do App Example (aka THE CHATROOM)</div>
@@ -72,6 +85,7 @@ export default function Home() {
           className="submitContainer"
           onClick={() => {
             console.log(text.value);
+            list.push(text.value);
             setText({ value: "type your message" });
           }}
         >
@@ -79,7 +93,7 @@ export default function Home() {
         </div>
       </div>
 
-      <ChatBubble text="hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world " />
+      <div className="messageDivContainer">{messageDivs}</div>
 
       <style jsx>{`
         .appContainer {
@@ -103,13 +117,13 @@ export default function Home() {
           cursor: default;
         }
         .inputArea {
-          height: 40px;
+          height: 45px;
           border-radius: 4px 0 0 4px;
           resize: none;
           outline: none;
           border: none;
           font-size: 16px;
-          padding: 10px;
+          padding: 13px 10px 10px 10px;
           width: 100%;
         }
         .inputContainer {
@@ -118,11 +132,13 @@ export default function Home() {
           flex-direction: row;
           width: 60%;
           margin-top: 40px;
+          border-bottom: 1px solid #363636;
+          padding-bottom: 25px;
         }
         .submitContainer {
           background-color: white;
           width: 100px;
-          height: 40px;
+          height: 45px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -133,6 +149,13 @@ export default function Home() {
         }
         .submitContainer:hover {
           background-color: #f2f2f2;
+        }
+        .messageDivContainer {
+          display: flex;
+          flex-direction: column-reverse;
+          width: 100%;
+          align-items: center;
+          justify-content: center;
         }
       `}</style>
     </div>
