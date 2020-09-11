@@ -1,5 +1,6 @@
 import { RoomService } from "@roomservice/browser";
 import { useState, useEffect } from "react";
+import ChatBubble from "../components/chatBubble";
 
 // creates a new room service client config
 const service = new RoomService({ auth: "/api/hello" });
@@ -51,14 +52,34 @@ export default function Home() {
   const [map, setMap] = useRoomServiceMap("room-name-yay", "map-name-woo");
   const [list, setList] = useRoomServiceList("room-name-list", "list-name-woo");
 
+  const [text, setText] = useState({ value: "type your message" });
+
+  function handleChange(event) {
+    setText({ value: event.target.value });
+  }
+
   return (
     <div className="appContainer">
       <div className="titleContainer">To-Do App Example (aka THE CHATROOM)</div>
 
       <div className="inputContainer">
-        <textarea className="inputArea">hello</textarea>
-        <div className="submitContainer">submit</div>
+        <textarea
+          className="inputArea"
+          value={text.value}
+          onChange={handleChange}
+        ></textarea>
+        <div
+          className="submitContainer"
+          onClick={() => {
+            console.log(text.value);
+            setText({ value: "type your message" });
+          }}
+        >
+          submit
+        </div>
       </div>
+
+      <ChatBubble text="hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world " />
 
       <style jsx>{`
         .appContainer {
