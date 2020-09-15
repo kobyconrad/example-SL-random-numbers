@@ -1,13 +1,14 @@
 import { RoomService } from "@roomservice/browser";
 import { useState, useEffect } from "react";
 import ChatBubble from "../components/chatBubble";
+import { Cursor } from "../components/Cursor";
 
 // creates a new room service client config
 const service = new RoomService({ auth: "/api/hello" });
 
 // this is the react library
 function useRoomServiceMap(roomName, mapName) {
-  const [map, setMap] = useState();
+  const [map, setMap] = useState<any>();
 
   useEffect(() => {
     async function load() {
@@ -28,7 +29,7 @@ function useRoomServiceMap(roomName, mapName) {
 }
 
 function useRoomServiceList(roomName, listName) {
-  const [list, setList] = useState();
+  const [list, setList] = useState<any>();
 
   useEffect(() => {
     async function load() {
@@ -48,11 +49,50 @@ function useRoomServiceList(roomName, listName) {
   return [list, setList];
 }
 
-export default function Home() {
-  const [map, setMap] = useRoomServiceMap("room-name-yay", "map-name-woo");
-  const [list, setList] = useRoomServiceList("room-name-list", "list-name-woo");
+function usePresence(roomName, key): [any, any] {
+  const [presence, setPresence] = useState<any>();
+  const [values, setValue] = useState({});
 
+  useEffect(() => {
+    async function load() {
+      const room = await service.room(roomName); //grabs the room
+      const presence = await room.presence(); //initializes presence
+      setPresence(presence);
+      setValue(await presence.getAll(key));
+      room.subscribe(presence, key, (vs) => {
+        setValue(vs);
+      });
+    }
+    load();
+  }, []);
+
+  function set(value) {
+    if (!presence) {
+      console.log("HOOHHOOHHO");
+      return;
+    }
+
+    setValue(presence.set(key, value));
+  }
+
+  return [presence, set];
+}
+
+export default function Home() {
+  const [positions, setPresence] = usePresence(
+    "room-name-presence",
+    "positions"
+  );
+  // const [map, setMap] = useRoomServiceMap("room-name", "map-name-woo");
+  const [list, setList] = useRoomServiceList("room-name", "list-name-woo");
   const [text, setText] = useState({ value: "type your message" });
+
+  useEffect(() => {
+    document.addEventListener("mousemove", (e) => {
+      setPresence({ x: e.x, y: e.y });
+      // console.log(e.x);
+    });
+  }, []);
 
   function handleChange(event) {
     setText({ value: event.target.value });
@@ -94,6 +134,14 @@ export default function Home() {
       </div>
 
       <div className="messageDivContainer">{messageDivs}</div>
+      <button
+        onClick={() => {
+          // const positions = presence.getAll("position");
+          console.log(positions.cache.positions);
+        }}
+      >
+        log presence
+      </button>
 
       <style jsx>{`
         .appContainer {
